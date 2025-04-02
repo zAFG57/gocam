@@ -2,6 +2,54 @@ package main
 
 import (
 	"fmt"
+	//"image"
+	//"image/color"
+	//"io/ioutil"
+	"log"
+	//"net/http"
+	"os"
+
+	"gocv.io/x/gocv"
+)
+
+func main() {
+	if len(os.Args) < 3 {
+		fmt.Println("How to run:\n\tfacedetect-from-url [image URL] [image file]")
+		return
+	}
+
+	// parse args
+	imageURL := os.Args[1]
+	saveFile := os.Args[2]
+
+
+	cam, err := gocv.VideoCaptureFile(imageURL)
+	if err != nil {
+		log.Fatalf("Error opening video stream or file: %v", err)
+	}
+	defer cam.Close()
+
+	img := gocv.NewMat()
+	for ;; {
+		if ok := cam.Read(&img); !ok {
+			fmt.Printf("Device closed: %v\n", err)
+			return
+		}
+		if img.Empty() {
+			continue
+		}
+		break
+	}
+
+	gocv.IMWrite(saveFile, img)
+	fmt.Printf("saved to %s\n", saveFile)
+}
+/*
+
+package main
+
+import (
+	"fmt"
 	"net/http"
 	"image"
 	"os"
@@ -14,10 +62,10 @@ import (
 func main() {
 	fmt.Println("début")
 
-	newFetchImage("http://192.168.1.49:81/stream")
+	test("http://192.168.1.49:81/stream")
 
 
-/*
+/ *
 	img, err := fetchImage("http://192.168.1.49:81/stream")
 	if err != nil {
 		fmt.Println("ici ça plante :", err)
@@ -29,7 +77,7 @@ func main() {
 		return
 	}
 	fmt.Println("fin")
-	*/
+	* /
 }
 
 func newFetchImage(url string) {
@@ -65,7 +113,7 @@ func newFetchImage(url string) {
 	}
 	fmt.Println("img", img)
 	
-	/*// Write the JPEG data directly to a file
+	/ * Write the JPEG data directly to a file
 	file, err := os.Create("frame.jpg")
 	if err != nil {
 		fmt.Println("Error creating file:", err)
@@ -80,7 +128,7 @@ func newFetchImage(url string) {
 	}
 
 	fmt.Println("Frame saved as frame.jpg")
-	*/
+	* /
 	
 	// Decode the JPEG image
 	imgDecode, err := jpeg.Decode(strings.NewReader(img))
